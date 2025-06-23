@@ -1,92 +1,98 @@
-Solana Token Launchpad
+# Solana Token Launchpad
 
-A minimalist React & Tailwind dApp for minting custom SPL tokens on the Solana Devnet.
+A minimal React/Vite app that lets you create your own SPL token on Solana Devnet in seconds.  
 
-🚀 Launch Tokens in Seconds!
+> **⚠️ Note:** This basic launchpad **does not** include on-chain metadata (name, symbol, logo). If you need metadata support (e.g. upload a JSON image URI to Arweave/IPFS and attach it), you’ll need to integrate a metadata instruction via Metaplex or a backend service.
 
-⚙️ Features
+---
 
-Wallet Integration: Connect/Disconnect via @solana/wallet-adapter-react-ui.
+## 🚀 Features
 
-Token Creation: Specify Token Name, Symbol, Image URL, Initial Supply.
+- **Create a new SPL token** with custom initial supply  
+- Wallet-adapter UI for Phantom, Solflare, Backpack, Glow, Torus  
+- Pure frontend; no backend required  
+- Minimal dependencies: `@solana/web3.js` & `@solana/spl-token`
 
-No On‑Chain Metadata: This version does not create on‑chain metadata (name, symbol, image). It mints pure SPL tokens only.
+---
 
-Minimalist UI: Dark theme, centered form, single-page design.
+## 🛠️ Installation
 
-📦 Prerequisites
+1. Clone this repo  
+   ```bash
+   git clone https://github.com/your-username/solana-token-launchpad.git
+   cd solana-token-launchpad
+Install dependencies
 
-Node.js (v14+)
-
-Yarn or npm
-
-A Solana-compatible wallet (e.g., Phantom) configured to Devnet
-
-🚀 Installation & Setup
-
-# 1. Clone the repo
-git clone https://github.com/your-username/solana-token-launchpad.git
-cd solana-token-launchpad
-
-# 2. Install dependencies
+bash
+Copy
+Edit
 npm install
-# or
-yarn install
+Start dev server
 
-# 3. Start the dev server
+bash
+Copy
+Edit
 npm run dev
-# or
-yarn dev
+Open http://localhost:5173 in your browser
 
-Then open http://localhost:5173 in your browser and connect your wallet.
+📋 Usage
+Click Select Wallet in the top-right and connect Phantom (or another adapter).
 
-🔧 Configuration
+Fill in Token Name, Symbol (UI only), and Initial Supply.
 
-RPC Endpoint: By default, uses Solana Devnet. To switch, update the endpoint in App.jsx:
+Click Create a Token.
 
-<ConnectionProvider endpoint="https://api.mainnet-beta.solana.com">
-
-Environment Variables: If you need custom keys or secrets, create a .env file in the root.
+View the transaction signature in an alert and check Devnet Explorer.
 
 📝 Adding Transaction Fees
+If you’d like to charge a fee (e.g. 0.01 SOL) before minting, modify the createToken function:
 
-To charge users a fee (e.g., 0.01 SOL) before minting, insert a transfer instruction at the top of your transaction:
+ts
+Copy
+Edit
+import { SystemProgram, LAMPORTS_PER_SOL } from "@solana/web3.js";
 
-import { SystemProgram } from "@solana/web3.js";
-
-const FEE_LAMPORTS = 0.01 * LAMPORTS_PER_SOL;
-const PLATFORM_WALLET = new PublicKey("<YOUR_PLATFORM_FEE_ADDRESS>");
-
+// inside createToken():
 const feeIx = SystemProgram.transfer({
   fromPubkey: wallet.publicKey,
-  toPubkey: PLATFORM_WALLET,
-  lamports: FEE_LAMPORTS,
+  toPubkey: new PublicKey("YOUR_FEE_WALLET_ADDRESS"),
+  lamports: 0.01 * LAMPORTS_PER_SOL,
 });
 
-// then build your tx:
 const tx = new Transaction().add(
   feeIx,
-  ...otherMintInstructions
+  /* ...other mint instructions... */
 );
+That ensures the user pays your platform wallet before the token is created.
 
-🔗 (Optional) Adding On‑Chain Metadata
-
-To include token metadata (name, symbol, image) on‑chain, integrate the Metaplex Token Metadata program:
+⚙️ Adding Metadata Support
+To attach name/symbol/logo on-chain, integrate Metaplex’s Token Metadata program:
 
 Install:
 
+bash
+Copy
+Edit
 npm install @metaplex-foundation/mpl-token-metadata
+Derive the metadata PDA and call
+createCreateMetadataAccountV3Instruction()
 
-Derive the metadata PDA and call createCreateMetadataAccountV3Instruction.
+Host a JSON (with name, symbol, image, description) on Arweave/IPFS
 
-Provide a JSON URI pointing to your metadata (name, symbol, image, etc.).
+Add the metadata instruction into your mint transaction
 
-Refer to the Metaplex docs for full details.
+See Metaplex docs for full details.
 
-🤝 Contributing
+🧑‍💻 Contributing
+Fork this repo
 
-Feel free to open issues or submit pull requests. For major changes, please open an issue first to discuss.
+Create a feature branch (git checkout -b feat/xyz)
 
-📜 License
+Commit your changes (git commit -m "feat: add xyz")
 
-MIT © Anshit Raj Yadav
+Push to origin (git push origin feat/xyz)
+
+Open a Pull Request
+
+📄 License
+MIT © Anshit Raj
